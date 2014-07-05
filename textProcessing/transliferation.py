@@ -1,12 +1,10 @@
 #-*-coding:utf8;-*-
 #qpy:2
 #qpy:console
-import re, codecs
+import re, codecs,strip_punc
 data = codecs.open('words.csv','rw+','utf-8')
 da = [d.replace('"','').split(',') for d in data]
-print da[0]
 words = {k[1].replace('\n',''):k[0] for k in da}
-print words[u'جماعة']
 hard_vowels = [
 [u'aa', u'a'],
 [u'ee', u'i', u'y'],
@@ -55,6 +53,9 @@ u'م':u'm',
 u'ن':u'n', 
 u'و':[u'v', u'w', hard_vowels[1]],
 u'ه':u'h',
+u'ھ':u'h',
+u'ہ':u'h',
+u'ۃ':[u'h','h'],
 u'ء':u"'a",
 u'ؤ':u"'u",
 u"ئ":u"'i",
@@ -101,34 +102,40 @@ def ara_eng(inp_ara):
         out_eng = out_eng.replace(b,
         	repl_b)   	
     return out_eng
-def eng_ara(inp_eng):
-    
-inp_name = raw_input(str("araFile name: "))
-in2_file = raw_input(str("engFile name: "))
-if in2_file == '':
-    inp_file0 = codecs.open(inp_name, 'r', 'utf-8')
-    ara_eng = ''.join([l for l in inp_file0]).split('<br>')
-    ara = ara_eng[0]
-    eng = ara_eng[1]
-else:
-    inp_file0 = codecs.open(inp_name, 'r', 'utf-8')
-    inp_file1 = codecs.open(in2_file, 'r', 'utf-8')
-    ara = ''.join([l for l in inp_file0]).split()
-    eng = ''.join([l for l in inp_file1]).split()
-    it()
-print ara[0].encode('utf-8')
-tran = [basic(a) for a in ara]
-tran2 = []
-print "progr \t hand"
-add = {}
-for a,b,c in zip(tran, eng, ara):
-    if a != b.lower():
-        print a, '\t', b.lower(), c.encode('utf-8')
-        if ara not in add.keys():
-            add[c] = b.lower()
-data = codecs.open('words.csv','a','utf-8')
-for i in add.keys():
-    data.write('\n')
-    r = u'"{1}","{0}"'.format(i,add[i])
-    data.write(r)
+if __name__ == '__main__':    
+    inp_name = raw_input(str("araFile name: "))
+    in2_file = raw_input(str("engFile name: "))
+    if in2_file == '':
+        inp_file0 = codecs.open(inp_name, 'r', 'utf-8')
+        araeng = ''.join([l for l in inp_file0]).split('<br>')
+        ara = strip_punc.strip(''.join(araeng[0])).split()
+        eng = strip_punc.strip(''.join(araeng[1])).split()
+    else:
+        inp_file0 = codecs.open(inp_name, 'r', 'utf-8')
+        inp_file1 = codecs.open(in2_file, 'r', 'utf-8')
+        ara = strip_punc.strip(''.join([l for l in inp_file0])).split()
+        eng = strip_punc.strip(''.join([l for l in inp_file1])).split()
+    tran = [ara_eng(a) for a in ara]
+    tran2 = []
+    print "progr \t hand"
+    add = {}
+    for a,b,c in zip(tran, eng, ara):
+        if a != b.lower():
+            print a, '\t', b.lower(), c.encode('utf-8')
+            if ara not in add.keys():
+                add[c] = b.lower()
+                tran2.append(
+b.lower()
+)
+        else: tran2.append(b.lower())
+    data = codecs.open('words.csv','a','utf-8')
+    for i in add.keys():
+        data.write('\n')
+        r = u'"{1}","{0}"'.format(i,add[i])
+        data.write(r)
+    out_name = raw_input(str('Out: '))
+    out = codecs.open(out_name, 'w', 'utf-8')
+    out.writelines(ara)
+    out.write('<br>')
+    out.writelines(tran2)
 
