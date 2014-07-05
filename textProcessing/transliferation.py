@@ -2,7 +2,7 @@
 #qpy:2
 #qpy:console
 import re, codecs
-data = codecs.open('/sdcard/words.csv','rw+','utf-8')
+data = codecs.open('words.csv','rw+','utf-8')
 da = [d.replace('"','').split(',') for d in data]
 print da[0]
 words = {k[1].replace('\n',''):k[0] for k in da}
@@ -105,10 +105,17 @@ def eng_ara(inp_eng):
     
 inp_name = raw_input(str("araFile name: "))
 in2_file = raw_input(str("engFile name: "))
-inp_file0 = codecs.open(inp_name, 'r', 'utf-8')
-inp_file1 = codecs.open(in2_file, 'r', 'utf-8')
-ara = ''.join([l for l in inp_file0]).split()
-eng = ''.join([l for l in inp_file1]).split()
+if in2_file == '':
+    inp_file0 = codecs.open(inp_name, 'r', 'utf-8')
+    ara_eng = ''.join([l for l in inp_file0]).split('<br>')
+    ara = ara_eng[0]
+    eng = ara_eng[1]
+else:
+    inp_file0 = codecs.open(inp_name, 'r', 'utf-8')
+    inp_file1 = codecs.open(in2_file, 'r', 'utf-8')
+    ara = ''.join([l for l in inp_file0]).split()
+    eng = ''.join([l for l in inp_file1]).split()
+    it()
 print ara[0].encode('utf-8')
 tran = [basic(a) for a in ara]
 tran2 = []
@@ -119,7 +126,7 @@ for a,b,c in zip(tran, eng, ara):
         print a, '\t', b.lower(), c.encode('utf-8')
         if ara not in add.keys():
             add[c] = b.lower()
-data = codecs.open('/sdcard/words.csv','a','utf-8')
+data = codecs.open('words.csv','a','utf-8')
 for i in add.keys():
     data.write('\n')
     r = u'"{1}","{0}"'.format(i,add[i])
