@@ -2,6 +2,8 @@
 #qpy:2
 #qpy:console
 import html2text, codecs, glob, re, brevity
+'''this is a module to extract info from .html files
+Here i used it for al-kanz'''
 numbers = {u'الاول': 1,
 u'الثاني' : 2,
 u'الثالث' : 3,
@@ -15,12 +17,11 @@ u'العاشر' : 10,
 }
     	
 def get_info():
-    html_name = raw_input(str('Filename: '))
-    html_file = brevity.brevity(html_name, ext = '.html')
-    return html_file
+    file_name = raw_input(str('Filename: '))
+    file_name = brevity.brevity(file_name, home = '', ext = '.html')#change to your home directory
+    return file_name
            
-def parse_html(f_name, nmbrs = numbers):
-    print f_name
+def parse_html(f_name):
     h_file = codecs.open(f_name, 'r', 'utf-8')
     h_raw = ''.join(h_file.readlines())
     sections = re.split(ur'<br>', h_raw, flags = re.IGNORECASE)
@@ -59,8 +60,8 @@ def extrctn(f_name = '', f_list = []):
                 out_file.writelines(fi)
                 ind += 1
             
-
-kanz_docs = glob.glob('/sdcard/ikanz/kanz*.html')
-extrctn(f_list=kanz_docs)
-#f = get_info()
-#extrctn(f_name=f)
+if __name__='__main__':
+    #kanz_docs = glob.glob('/sdcard/ikanz/kanz*.html')
+    #extrctn(f_list=kanz_docs)
+    f = get_info()
+    extrctn(f_name=f)

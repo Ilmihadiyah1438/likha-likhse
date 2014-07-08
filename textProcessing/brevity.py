@@ -1,5 +1,5 @@
-def brevity(file_name, home = '/sdcard/',
-	        ext = '.txt'):
+#*.*encoding:utf-8*.*
+def brevity(file_name, home, ext):
     fi = file_name
     if fi[0] != '/':
         fi = home + fi
