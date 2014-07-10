@@ -78,7 +78,11 @@ Pages: {pgs}
           f = self.fatemi)
         print out.encode('utf-8')    
 class Journal(Citation):
-    pass
+    def __init__(self, uid = '', 
+        title = '', name = '',
+        nameAra = '', 
+        authors = [('','','')],
+        authorsAra = [('',
 class Qasida(Citation):
     pass
 class Website(Citation):
