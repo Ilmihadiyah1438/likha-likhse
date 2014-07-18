@@ -19,7 +19,7 @@ Our goal is to make an offline web app, or at least a standalone cross-platform 
 
 ##Spell check/dictionary
 
-We will use the [hunspell library](goo.gl/NywQu6) to support spellcheck. In order to generate the required files, we will use a web-based app supporting annotation and definition.
+We will use the [hunspell library](http://goo.gl/NywQu6) to support spellcheck. In order to generate the required files, we will use a web-based app supporting annotation and definition.
 
 ##Citation/Bibliography Manager
 
