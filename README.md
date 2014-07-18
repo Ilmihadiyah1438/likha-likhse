@@ -2,9 +2,9 @@
 LikhaLikhse (name may change) is intended 
 to be a cross-platform word processor to facilitate productivity and creativity for Lisan-ud-Dawat centric projects. 
 We intend to develop the following features:
-*A word processor
-*A citation/bibliography manager
-*Spell check/dictionary
+- A word processor
+- A citation/bibliography manager
+- Spell check/dictionary
 Languages to be focused on: Lisan ud Dawat, Arabic, English
 
 ##Word Processing
