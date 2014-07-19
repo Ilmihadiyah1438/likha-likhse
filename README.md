@@ -1,3 +1,4 @@
+<html dir = auto>
 #LikhaLikhse
 
 LikhaLikhse (name may change) is intended to be a cross-platform word processor to facilitate productivity and creativity for Lisan-ud-Dawat centric projects. 
@@ -45,15 +46,5 @@ We will try to implement Aljameatus Saifiyah's Transliteration and Referencing g
 
 ##مراجع مصادر
 مراجع مصادر نے الجامعة السيفية نا Transliteration and Referencing Guidelines مطابق پيش كروا ما سهولية تهائي، اهنا واسطے ايك manager نے تيار كرسوں (جہ مثل Word ما چھے)....
+
 **انشاء الله تعالى**
-
-
-
-
-
-
-
-
-
-
-
