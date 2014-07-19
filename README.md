@@ -26,8 +26,8 @@ We will use the [hunspell library](http://goo.gl/NywQu6) to support spellcheck. 
 
 We will try to implement Aljameatus Saifiyah's Transliteration and Referencing guidelines in this software. This includes support for citations management, like that found in Microsoft Word.
 
- ‏#لكھا-لكھسے
-‏لكها لكهسے (انشاء الله تعالى) ايك word processor رهسے٬ جہ نا سي لسان الدعوة انے بيسري زبانو ما لكهوا ما مدد تھاسے. اٰ برنامج هميں سنة ١٤٣٨ ھ ما حضرة امامية ما٬ الدرجة الحادية عشرة عرض كروا واسطے تيار كري رهيا چھے٬ لذلك اهنو focus زياده الجامعة السيفية نا برامج اوپر هسے.
+#لكھا-لكھسے
+ ‏لكها لكهسے (انشاء الله تعالى) ايك word processor رهسے٬ جہ نا سي لسان الدعوة انے بيسري زبانو ما لكهوا ما مدد تھاسے. اٰ برنامج هميں سنة ١٤٣٨ ھ ما حضرة امامية ما٬ الدرجة الحادية عشرة عرض كروا واسطے تيار كري رهيا چھے٬ لذلك اهنو focus زياده الجامعة السيفية نا برامج اوپر هسے.
 
 ‏حسب الذيل features نے حسب الامكان شامل كرواني انے develop كرواني كوشش كريسوں:
 ‏- ايك word processor
