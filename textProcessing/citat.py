@@ -10,7 +10,7 @@ class InputError(Exception):
 class Citation(object):
     def __init__(self, uid = '', c_type = '', name = ('',''), nameSaheb = ('', ''),
                  nameAuthors = ([('','')],[('','')]), nameEditors = ([('','')],[('','')]),
-                 nameTranslators = ([('','')]),pub = ('', ''), place = ('', ''),
+                 nameTranslators = ([('','')], [('','')]),pub = ('', ''), place = ('', ''),
                  year = ('', ''), pages = '', fatemi = 1):
         
         if uid:
@@ -24,8 +24,8 @@ class Citation(object):
         self.translators = self.__names(nameTranslators)
         
         self.c_type = c_type
-        self.name = nameAra,nameEng #title of work
-        self.saheb = nameSahebA, nameSahebE
+        self.name = name #title of work
+        self.saheb = nameSaheb
         if fatemi:
             self.author = self.saheb
         else:
@@ -137,7 +137,7 @@ class Citation(object):
             publish = self.__publisher(lang = 'ara')
             title = self.__title(lang = 'ara')
             
-        elif lang == 'eng:
+        elif lang == 'eng':
             if auth == 0:
                 authors = u'---'
             else:
@@ -268,8 +268,10 @@ If no equivalents available, an empty
         s = u"""
 {uid}, {c_type}, Fatemi: {f}
 ------------------------------------------
-Name:\t {name} \t|\t {nameAra}
-Author(s):\t {authors} 
+Title:\t {name} \t|\t {nameAra}
+Author(s):\t {authors}
+Editors{s):\t {editors}
+Translator(s):\t {translators}
 Pub_detail:\t {city}: {publisher}, {date}
 Pages: {pgs}
 
@@ -288,58 +290,57 @@ Pages: {pgs}
             pblshr = self.publisher[1], date = self.pub_date[1], 
             pgs = self.pages, f = self.fatemi)
         print out.encode('utf-8')
+
+        
 class Journal(Citation):
-    def __init__(self, uid = '',  title = '', name = '',nameAra = '', 
-                 authors = [('','','')], authorsAra = [('', '', '')],
-                 collegeA = '', collegeE = '', url = '',
-                 yearH = '', yearM = '', pages = '', fatemi = 1):
-        super(Journal, self).__init__(uid = uid, c_type = 'journal',
-                                      title = title , nameEng = name,
-                            nameAra = nameAra, authors = [('','','')],
-                            authorsAra = [('','','')], pubA = collegeA,
-                            pubE = collegeE, placeE = url, yearH = yearH,
-                            yearM = yearM, pages = pages, fatemi = fatemi)
-        
-        
+    def __init__(self, uid = '',  title = '', saheb = ('','') 
+                 authors = [('',''),('','')], editors = [('',''),('','')],
+                 translators = [('',''),('','')]
+                 college = ('',''), url = '', place = ('',''),
+                 year = ('',''), pages = '', fatemi = 1):
+        super(Journal, self).__init__(
+            self, uid = '', c_type = 'journal',
+            name = title, nameSaheb = saheb, nameAuthors = authors,
+            nameEditors = editors, nameTranslators = translators,
+            pub = college, place = place, year = year, pages = pages,
+            fatemi = 1)
+               
 class Qasida(Citation):
     def __init__(self, uid = '',
-                 nameEng = '', nameAra = '', nameSahebA = '', nameSahebE = '',
-                 authors = [('','','')], authorsAra = [('', '', '')],
-                 pubA = '', pubE = '', placeA = '', placeE = '',
-                 yearH = '', yearM = '', pages = '', fatemi = 0):
-        super(Qasida, self).__init__(c_type = 'qasida', uid = uid,  title = '',
-         nameEng = nameEng, nameAra = nameAra, authors = authors,
-         authorsAra = authorsAra, nameSahebA = nameSahebA, nameSahebE = nameSahebE,
-         pubA = pubA, pubE = pubE, placeA = placeA, placeE = placeE, yearH = yearH,
-         yearM = yearM, pages = pages, fatemi = fatemi)
+                 matlaa = ('',''), saheb = ('',''),
+                 authors = [('',''), ('', '')],
+                 publish = ('',''), place = ('',''),
+                 verses = '', year = ('',''), fatemi = 1):
+        super(Qasida, self).__init__(
+            c_type = 'qasida', uid = uid, name = matlaa, nameSaheb = saheb,
+            nameAuthors = authors, pub = publish, place = place, year = year,
+            pages = verses, fatemi = fatemi)
         
 class Website(Citation):
-    def __init__(self, uid = '', nameEng = '', nameAra = '', authors = [('','','')],
-                 authorsAra = [('', '', '')], date = '', url = '', fatemi = 1):
-        super(Website, self).__init__(uid = uid, c_type = 'website',
-         nameEng = name, nameAuthorsA = [('','','')], nameAuthorsE = [('','','')], pubA = '',
-         pubE = '', placeA = '', placeE = '', yearH = '', yearM = '',
-         pages = '', fatemi = 1)
+    def __init__(self, uid = '', title = ('',''), authors = [('',''),('','')],
+                 date = '', url = '', fatemi = 1):
+        super(Website, self).__init__(
+            uid = uid, c_type = 'website',
+            name = title, nameAuthors = [('',''),('','')],
+            year = date, place = url, fatemi = 1)
+        
 class BookPrint(Citation):
-    def __init__(self, uid = '',  titleE = '', titleA = '', nameSahebE = '', nameSahebA = ''
-                 authors = [('','','')], authorsAra = [('', '', '')],
-                 pubA = '', pubE = '', placeA = '', placeE = '',
-                 yearH = '', yearM = '', pages = '', fatemi = 1):
-        super(BookPrint, self).__init__(uid = uid, c_type = 'bookPrnt', nameAra = titleA,
-                                        nameEng = titleE, nameSahebE = nameSahebE, nameSahebA = nameSahebA,
-                                        authors = authors, authorsAra = authorsAra,
-                                        pubA = pubA, pubE = pubE, placeA = placeA, placeE = placeE,
-                                        yearH = yearH, yearM = yearM, pages = pages, fatemi = fatemi)
+    def __init__(self, uid = '',  title = ('',''), nameSaheb = ('','')
+                 authors = [('',''),('', '')], editors = [('',''),('', '')],
+                 translators = [('',''),('', '')], publisher = ('',''), place = ('',''),
+                 year = ('',''), pages = '', fatemi = 1):
+        super(BookPrint, self).__init__(
+            uid = uid, c_type = 'bookPrnt', name = title, nameSaheb = saheb,
+            nameAuthors = authors, nameEditors = editors, nameTranslators = translators
+            pub = publish, place = place, year = year, pages = pages, fatemi = fatemi)
+        
 class BookIS(Citation):
-    def __init__(self, uid = '',  titleE = '', titleA = '', nameSahebE = '', nameSahebA = ''
-                 authors = [('','','')], authorsAra = [('', '', '')],
-                 pubA = '', pubE = '', placeA = '', placeE = '',
-                 yearH = '', yearM = '', pages = '', fatemi = 1):
-        super(BookPrint, self).__init__(uid = uid, c_type = 'bookPrnt', nameAra = titleA,
-                                        nameEng = titleE, nameSahebE = nameSahebE, nameSahebA = nameSahebA,
-                                        authors = authors, authorsAra = authorsAra,
-                                        pubA = pubA, pubE = pubE, placeA = placeA, placeE = placeE,
-                                        yearH = yearH, yearM = yearM, pages = pages, fatemi = fatemi)
+    def __init__(self, uid = '',  title = ('',''), nameSaheb = ('','')
+                 authors = [('',''),('','')], khizana = ('',''),
+                 location = ('',''), year = ('', ''), pages = '', fatemi = 1):
+        super(BookPrint, self).__init__(
+            uid = uid, c_type = 'bookIS', name = title, nameSaheb = saheb, nameAuthors = authors,
+            pub = khizana, place = location, year = year, pages = pages, fatemi = fatemi)
 class Living(Citation):
     def __init__(self, uid = '',  title = '', name = '',nameAra = '', 
                  authors = [('','','')], authorsAra = [('', '', '')],
