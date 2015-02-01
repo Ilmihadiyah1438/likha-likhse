@@ -48,16 +48,16 @@ def basic_query(typ = 'author', multi = 'y', what = 'name', form = ''):
             form = 'year'
             multi = 'n'
         elif what == 'title':
-            form = 'title;subtitle (if title contains a semicolon, insert && in place of it)'
+            form = 'title,subtitle (if title contains a semicolon, insert && in place of it)'
             multi = 'n'
         elif what == 'url':
             form = 'url (replace semicolons with &&)'
             multi = 'n'
         elif what == 'place':
-            form = 'city;country'
+            form = 'city,country'
             multi = 'n'
         elif what == 'date':
-            form = 'dd;mm;yyyy (If info is not available, type only ; (ex. ;2;1966)'
+            form = 'dd/mm/yyyy (If info is not available, type only what is available)'
     while cont == 'y':
         if what != 'url':
             if what == 'year' or 'date':
@@ -83,6 +83,8 @@ mentioned above: '''.format(what, typ)))
     return basic
                           
 def bookPrint_query():
+    part = False
+    partof = ''
     title = basic_query(typ = 'title', multi = 'n', what = 'title')
     fatemi = verify(query = 'Is source Fatemi? (y or n): ')
     if fatemi:
@@ -91,6 +93,11 @@ def bookPrint_query():
     else:
         author = basic_query(typ = 'author')
         saheb = ('','')
+    p = verify(query = 'Is this part of a larger work? (y or n)')
+    if p:
+        partof = basic_query(typ = 'name of larger work', multi = 'n',
+                               what = 'title')
+        part = True
     e = verify(query = 'Any editors? (y or n)')
     if e: editor = basic_query(typ = 'editor')
     else: editor = [('',''),('','')]
@@ -105,9 +112,13 @@ def bookPrint_query():
                         nameEditors = editor, nameTranslators = translator,
                         pub = publisher, place = city, year = year, pages = pages,
                         fatemi = fatemi)
+    b.partof = partof
+    b.part = part
     return b
                      
 def bookIS_query():
+    part = False
+    partof = ''
     title = basic_query(typ = 'title', multi = 'n', what = 'title')
     fatemi = verify(query = 'Is source Fatemi? (y or n): ')
     if fatemi:
@@ -116,6 +127,11 @@ def bookIS_query():
     else:
         author = basic_query(typ= 'author')
         saheb = [('',''),('','')]
+    p = verify(query = 'Is this part of a larger work? (y or n)')
+    if p:
+        partof = basic_query(typ = 'name of larger work', multi = 'n',
+                               what = 'title')
+        part = True
     khizana = basic_query(typ = 'khizana', multi = 'n')
     location = basic_query(typ = 'location of khizana', multi = 'n', what = 'city')
     year = basic_query(typ = 'year of IS', what = 'year', multi = 'n')
@@ -123,9 +139,13 @@ def bookIS_query():
     i = citat.BookIS(fatemi = fatemi, saheb = saheb, author = author,
                      khizana = khizana, location = location, year = year,
                      pages = pages)
+    i.partof = partof
+    i.part = part
     return i
     
 def journal_query():
+    part = False
+    partof = ''
     title = basic_query(typ = 'title', multi = 'n', what = 'title')
     fatemi = verify(query = 'Is source Fatemi? (y or n): ')                        
     if fatemi:
@@ -134,6 +154,11 @@ def journal_query():
     else:
         author = basic_query(typ = 'author')
         saheb = ('','')
+    p = verify(query = 'Is this part of a larger work? (y or n)')
+    if p:
+        partof = basic_query(typ = 'name of larger work', multi = 'n',
+                               what = 'title')
+        part = True
     e = verify(query = 'Any editors? (y or n)')
     if e: editor = basic_query(typ = 'editor')
     else: editor = [('',''),('','')]
@@ -148,9 +173,13 @@ def journal_query():
     j = citat.Journal(fatemi = fatemi, saheb = saheb, authors = author,
                       editors = editor, translators = translator,
                       college = college, url = url, year = year, pages = pages)
+    j.part = part
+    j.partof = partof
     return j
     
 def qasida_query():
+    part = False
+    partof = ''
     matlaa = basic_query(typ = 'matlaa', multi = 'n', form = 'matlaa')
     fatemi = verify(query = 'Is source Fatemi? (y or n): ')
     if fatemi:
@@ -159,10 +188,17 @@ def qasida_query():
     else:
         author = basic_query(typ = 'author')
         saheb = ('','')
+    p = verify(query = 'Is this part of a larger work? (y or n)')
+    if p:
+        partof = basic_query(typ = 'name of larger work', multi = 'n',
+                               what = 'title')
+        part = True
     year = basic_query(typ = 'year of publication', what = 'year')
     verses = num_verify(query = 'Number of verses: ')
     q = citat.Qasida(fatemi = fatemi, matlaa = matlaa, year = year, verses = verses,
                      saheb = saheb, authors = author)
+    q.part = part
+    q.partof = partof
     return q
     
 def website_query():

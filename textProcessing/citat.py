@@ -41,6 +41,7 @@ class Citation(object):
         self.edited = 0
         self.translate = 0
         self.part = 0
+        self.chapter = ''
         self.fatemi = fatemi # 1 or 0
         self.pages = pages   # num of pages
         self.notes = (u'-',u'-')
@@ -156,7 +157,7 @@ class Citation(object):
             bib_base = u'{authors}.{title}. {publish}.'
             publish = self.__publisher(lang = 'eng')
             title = self.__title(lang = 'eng')
-        b= {'publish' = publish, 'authors' = authors, 'title' = title}
+        b = {'publish':publish, 'authors':authors, 'title':title}
         biblio = bib_base.format(**b)
     def fName_first(self, name, lang):
         """for tuple"""
@@ -201,18 +202,19 @@ class Citation(object):
         return dates
         
     def __publisher(self, lang = 'ara'):
-        pub = {'date':self.__year(lang = lang}}
+        yy = self.__year(lang = lang)
+        pub = {'date':yy}
         if lang == 'ara':
             pub['publisher', 'place'] = self.publisher[0], self.pub_place[0]
             if self.istinsakh:
                 publish = u'اس: {date}،{publisher}،{place}'
-            if self.istinsakh is not:
+            if self.istinsakh is not True:
                 publish = u'{place}:{publisher}،{date}'
         elif lang == 'eng':
             pub['publisher', 'place'] = self.publisher[1], self.pub_place[1]
             if self.istinsakh:
                 publish = u'Date of IS: {date}, {publisher}'
-            if self.istinsakh is not:
+            if self.istinsakh is not True:
                 publish = u'{place}:{publisher},{date}'
         p = publish.format(**pub)
         return p
@@ -226,22 +228,21 @@ class Citation(object):
             if self.part:
                 title = u'"{title}"'
                 title += u'{d} المرجع في {source}'
-            if self.edited:
+            if self.editors:
                 title += u'{d} تحقيق {editor}'
-            if self.translate:
-                title += u'{d} المترجم بـ {editor}'s
+            if self.translators:
+                title += u'{d} المترجم بـ {editor}'
         elif lang == 'eng':
             titl = {'title':self.name[1], 'source': self.partOf[1], 'd':d,
                      'editor': editors, 'translator': translators}
             if self.part:
                 title = u'"{title}"'
                 title += u'{d} In {source}'
-            if self.edited:
-                if self.editors > 1:
-                    title += u'{d} eds. {editor}'
-                else:
-                    title += u'{d} ed. {editor}'
-            if self.translate:
+            if self.editors > 1:
+                title += u'{d} eds. {editor}'
+            elif self.editors == 1:
+                title += u'{d} ed. {editor}'
+            if self.translators:
                 title += u'{d} Translated by {translator}'       
         t = title.format(**titl)
     def __names(self, names):
@@ -293,9 +294,9 @@ Pages: {pgs}
 
         
 class Journal(Citation):
-    def __init__(self, uid = '',  title = '', saheb = ('','') 
+    def __init__(self, uid = '',  title = '', saheb = ('',''), 
                  authors = [('',''),('','')], editors = [('',''),('','')],
-                 translators = [('',''),('','')]
+                 translators = [('',''),('','')],
                  college = ('',''), url = '', place = ('',''),
                  year = ('',''), pages = '', fatemi = 1):
         super(Journal, self).__init__(
@@ -325,17 +326,17 @@ class Website(Citation):
             year = date, place = url, fatemi = 1)
         
 class BookPrint(Citation):
-    def __init__(self, uid = '',  title = ('',''), nameSaheb = ('','')
+    def __init__(self, uid = '',  title = ('',''), nameSaheb = ('',''),
                  authors = [('',''),('', '')], editors = [('',''),('', '')],
                  translators = [('',''),('', '')], publisher = ('',''), place = ('',''),
                  year = ('',''), pages = '', fatemi = 1):
         super(BookPrint, self).__init__(
             uid = uid, c_type = 'bookPrnt', name = title, nameSaheb = saheb,
-            nameAuthors = authors, nameEditors = editors, nameTranslators = translators
-            pub = publish, place = place, year = year, pages = pages, fatemi = fatemi)
+            nameAuthors = authors, nameEditors = editors,
+            nameTranslators = translators, pub = publish, place = place, year = year, pages = pages, fatemi = fatemi)
         
 class BookIS(Citation):
-    def __init__(self, uid = '',  title = ('',''), nameSaheb = ('','')
+    def __init__(self, uid = '',  title = ('',''), nameSaheb = ('',''),
                  authors = [('',''),('','')], khizana = ('',''),
                  location = ('',''), year = ('', ''), pages = '', fatemi = 1):
         super(BookPrint, self).__init__(
