@@ -1,7 +1,7 @@
 #-*-coding:utf8;-*-
 #qpy:2
 #qpy:console
-import re, codecs, brevity,pprint, citat
+import re, codecs, brevity,pprint, citat, sqlite3
 citation = []
 def form_re(cite_type, order):
     dlmtr_name = raw_input(
@@ -226,8 +226,6 @@ def menu(x):
         'website'\t or 4:\t website
         'journal'\t or 5:\t journal article (like JSTOR)
         'skip'\t or #:\t skip this entry
-        'save and close'\t or 0:\t save and close
-        'close w/o saving'\t or !: \t close without saving
         NOTE:  Append capital I for istinsakh kutub
         NOTE2: All entries without quotes, so 'book' is actually
         book
@@ -257,17 +255,73 @@ def menu(x):
         b = journal_query()
         x += 1
         c = 1
-    elif ('save and close' or '0') in cite_type:
-        print 'Goodbye, saving....\n'
-        out_name = raw_input(str("Enter out file name: "))
-        out = codecs.open(out_name, 'w', 'utf-8')
-        out.write(citations)
-    elif ('close w/o save' or '!') in cite_type:
-        print 'Not saving, goodbye \n'
+    #elif ('save and close' or '0') in cite_type:
+        #print 'Goodbye, saving....\n'
+        #out_name = raw_input(str("Enter out file name: "))
+        #out = codecs.open(out_name, 'w', 'utf-8')
+        #out.write(citations)
+    #elif ('close w/o save' or '!') in cite_type:
+        #print 'Not saving, goodbye \n'
     else:
         print "Choose an option"
         c = 0
     return b,x,c
+
+def opening_db(file_name, cite_db):
+    conn = sqlite3.connect(file_name)
+    cur = conn.cursor()
+    cur.execute('select * from kitabs')
+    cites = []
+    for i in cur.fetchall():
+        c = citat.Citation()
+        c.uid = i[0]
+        c.fatemi = i[1]
+        c.name = (i[2],i[3])
+        c.c_type = i[4] #type in kitabs.type
+        c.istinsakh = i[5]
+        c.publisher = (i[6],i[7])
+        c.pub_date = (i[8],i[9])
+        c.pub_place = (i[10],i[11])
+        c.volumes = i[12]
+        c.pages = i[13]
+        c.notes = (i[14], i[15])
+        auth = []
+        edi = []
+        tra = []
+        cur = conn.cursor()
+        cur.execute('''select * from booktoauthors
+where ? = booktoauthors.kit;''', i[0])
+        aet = cur.fetchall()
+        for z in aet:
+            cur.execute('''select * from authors where authors.id = ?;''', z[1])
+            auth_info = cur.fetchall()
+            f = auth_info[3]
+            a = (auth_info[1],auth_info[2])
+            ai = z[2]
+            ac = auth_info[4]
+            auth.append((a,ai,ac))
+            cur.execute('''select * from editors where editors.id = ?;''', z[3])
+            edi_info = cur.fetchall()
+            e = (edi_info[1], edi_info[2])
+            ei = z[4]
+            edi.append((e,ei))
+            cur.execute('''select * from translators where translators.id = ?;''',z[5])
+            tra_info = cur.fetchall()
+            t = (tra_info[6],tra_info[7])
+            ti = z[6]
+            tra.append((t,ti))
+        
+            
+            
+            
+            
+        
+        
+        
+    
+
+def saving_db(file_name, cite_db):
+    pass
     
    
 if __name__ =='__main__':
@@ -295,7 +349,10 @@ if __name__ =='__main__':
            c = result[2]
                     
     for i in cites:
-        print i            
+        print i
+    save = verify(query = "Would you like to save these citations? (y or n)")
+    if save:
+        
             
             
             

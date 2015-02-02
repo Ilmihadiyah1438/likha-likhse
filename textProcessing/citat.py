@@ -17,7 +17,7 @@ class Citation(object):
             self.uid = uid
             #uid for citation
         else: 
-            self.uid = uid, (name + str(random.random()))
+            self.uid = uid, (name[0] + str(random.random()))
         #names are 2-tuples (prefix+first, last+suffix)    
         self.authors = self.__names(nameAuthors)
         self.editors = self.__names(nameEditors)
