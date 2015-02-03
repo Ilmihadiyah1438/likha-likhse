@@ -1,5 +1,5 @@
 CREATE TABLE kitabs(
-	uid TEXT,
+	uid TEXT UNIQUE,
 	fatemi INTEGER,
 	titleAra TEXT,
 	titleEng TEXT,
@@ -12,26 +12,23 @@ CREATE TABLE kitabs(
 	pub_placeAra TEXT,
 	pub_placeEng TEXT,
 	volumes INTEGER,
-	pages INTEGER,
+	pages TEXT,
 	notesAra TEXT,
 	notesEng TEXT,
-	partOf INTEGER REFERENCES kitabs (uid));
+	partOf TEXT REFERENCES kitabs (uid));
 CREATE TABLE authors(
-	id INTEGER PRIMARY KEY,
+	id INTEGER AUTOINCREMENT PRIMARY KEY,
 	nameAra TEXT,
 	nameEng TEXT,
-	fatemi INTEGER,
-	chrono INTEGER);
+	fatemi INTEGER);
 CREATE TABLE editors(
-	id INTEGER PRIMARY KEY,
+	id INTEGER AUTOINCREMENT PRIMARY KEY,
 	nameAra TEXT,
-	nameEng TEXT,
-	chrono INTEGER);
+	nameEng TEXT);
 CREATE TABLE translators(
-	id INTEGER PRIMARY KEY,
+	id INTEGER AUTOINCREMENT PRIMARY KEY,
 	nameAra TEXT,
-	nameEng TEXT,
-	chrono INTEGER);
+	nameEng TEXT);
 CREATE TABLE booktoauthors(
 	kit REFERENCES kitabs(uid),
 	aut REFERENCES authors(id),
