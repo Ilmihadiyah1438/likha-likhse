@@ -363,10 +363,6 @@ def saving_db(file_name, cite_list):
     update_translators = diff[0:1]
     new_translators = diff[2]
     #USE UPDATE INSTEAD OF REPLACE
-    authors_sql = '''UPDATE authors SET '''
-    editors_sql = '''UPDATE editors SET '''
-    trans_sql = '''UPDATE translators SET '''
-    kitabs_sql = '''UPDATE kitabs SET '''
     for c in cite_list:
         k =[('uid',c.uid),('fatemi',c.fatemi),('titleAra',c.titleAra),
         ('titleEng',c.titleEng),('type',c.type),('istinsakh',c.istinsakh),
@@ -378,7 +374,11 @@ def saving_db(file_name, cite_list):
         e = cur.execute('''SELECT * FROM kitabs WHERE uid = ?''', c.uid)
         if e.fetchall():
             for i in k:
-                pass
+                authors_sql = '''UPDATE authors SET '''
+                editors_sql = '''UPDATE editors SET '''
+                trans_sql = '''UPDATE translators SET '''
+                kitabs_sql = '''UPDATE kitabs SET '''
+                authors_sql += '{0} = {1}
             
         
         
