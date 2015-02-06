@@ -363,22 +363,26 @@ def saving_db(file_name, cite_list):
     update_translators = diff[0:1]
     new_translators = diff[2]
     #USE UPDATE INSTEAD OF REPLACE
-    authors_sql = '''REPLACE INTO authors (nameAra, nameEng, fatemi) VALUES ({0});'''
-    a = c.authors
-    editors_sql = '''REPLACE INTO editors (nameAra, nameEng)
-VALUES ({0});'''
-    trans_sql = '''REPLACE INTO translators (nameAra,nameEng)
-VALUES ({0});'''
+    authors_sql = '''UPDATE authors SET '''
+    editors_sql = '''UPDATE editors SET '''
+    trans_sql = '''UPDATE translators SET '''
+    kitabs_sql = '''UPDATE kitabs SET '''
     for c in cite_list:
-        kitabs_sql = '''REPLACE INTO kitabs (uid, fatemi, titleAra, titleEng,
-        type, istinsakh, publisherAra, publisherEng, pub_dateH, pub_dateG,
-        pub_placeAra, pub_placeEng, volumes, pages, notesAra, notesEng,
-        partOf) VALUES({0});'''
-        k = [c.uid,c.fatemi,c.titleAra,c.titleEng,c.type,c.istinsakh,
-             c.publisherAra,c.publisherEng,c.pub_dateH,c.pub_dateG,
-             c.pub_placeAra,c.pub_placeEng,c.volumes,c.pages,c.notesAra,
-             c.notesEng,c.partOf]
-        kitabs_val = ''.append('"{0},"'.format()   
+        k =[('uid',c.uid),('fatemi',c.fatemi),('titleAra',c.titleAra),
+        ('titleEng',c.titleEng),('type',c.type),('istinsakh',c.istinsakh),
+        ('publisherAra',c.publisherAra),('publisherEng',c.publisherEng),
+        ('pub_dateH',c.pub_dateH),('pub_dateG',c.pub_dateG),
+        ('pub_placeAra',c.pub_placeAra),('pub_placeEng',c.pub_placeEng),
+        ('volumes',c.volumes),('pages',c.pages),('notesAra',c.notesAra),
+        ('notesEng',c.notesEng),('partOf',c.partOf)]
+        e = cur.execute('''SELECT * FROM kitabs WHERE uid = ?''', c.uid)
+        if e.fetchall():
+            for i in k:
+                pass
+            
+        
+        
+          
             
         
         
