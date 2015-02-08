@@ -18,7 +18,7 @@ def verify(query = ''):
     v = raw_input(str('{0}'.format(query)))
     while v != ('y' or 'Y' or 'n' or 'N'):
         v = raw_input(str('{0} (Please enter y or n)'.format(query)))
-    if v.lowercase() == 'y':
+    if v.lower() == 'y':
         b = True
     else: b = False
     return b
@@ -33,6 +33,234 @@ def num_verify(query = ''):
             n = raw_input(str('''Please enter only integers. {0}
 (if unknown, enter 0): '''.format(query)))
     return n
+def opening_db(file_name, cite_db):
+    conn = sqlite3.connect(file_name)
+    cur = conn.cursor()
+    cur.execute('select * from kitabs')
+    cites = []
+    for i in cur.fetchall():
+        c = citat.Citation()
+        c.uid = i[0]
+        c.fatemi = i[1]
+        c.name = (i[2],i[3])
+        c.c_type = i[4] #type in kitabs.type
+        c.istinsakh = i[5]
+        c.publisher = (i[6],i[7])
+        c.pub_date = (i[8],i[9])
+        c.pub_place = (i[10],i[11])
+        c.volumes = i[12]
+        c.pages = i[13]
+        c.notes = (i[14], i[15])
+        auth = []
+        edi = []
+        tra = []
+        cur = conn.cursor()
+        cur.execute('''select * from booktoauthors
+where booktoauthors.kit = "?";''', i[0])
+        aet = cur.fetchall()
+        for z in aet:
+            cur.execute('''select * from authors where authors.id = "?";''', z[1])
+            auth_info = cur.fetchall()
+            f = auth_info[3]
+            a = (auth_info[1],auth_info[2])
+            ai = z[2]
+            ac = auth_info[4]
+            auth.append((a,ai,ac))
+            cur.execute('''select * from editors where editors.id = "?";''', z[3])
+            edi_info = cur.fetchall()
+            e = (edi_info[1], edi_info[2])
+            ei = z[4]
+            edi.append((e,ei))
+            cur.execute('''select * from translators where translators.id = "?";''',z[5])
+            tra_info = cur.fetchall()
+            t = (tra_info[6],tra_info[7])
+            ti = z[6]
+            tra.append((t,ti))
+        c.authors = [at[0] for at in sorted(auth, key = itemgetter(1))]
+        c.editors = [et[0] for et in sorted(edi, key = itemgetter(1))]
+        c.translators = [tr[0] for tr in sorted(tra, key =  itemgetter(1))]
+        cites.append(c)
+    conn.close()
+    return cites
+
+def compare(list1, list2):
+    equal = []
+    diff1 = []
+    diff2 = []
+    new = []
+    for a in list1:
+        for b in list2:
+            if a == b:
+               equal.append(a)
+            elif a[0] == b[0]:
+               diff1.append(a)
+            elif a[1] == b[1]:
+               diff2.append(a)
+            elif (a[0] and a[1]) != (b[0] and b[1]):
+               new.append(a)
+               
+    return equal,diff1,diff2,new     
+
+def saving_db(file_name, cite_list):
+    create = ''
+    try:
+        codecs.open(file_name)
+    except IOError:
+        create = codecs.open('biblio.sql','r').read()
+    conn = sqlite3.connect(file_name)
+    if create:
+        conn.execute(create)
+    cur = conn.cursor()
+    e = cur.execute('select * from kitabs')
+    exist_cites = [c[0] for c in e.fetchall()]
+    prog_cites = [c for c in cite_list]
+    new_cites = [c for c in prog_cites if c.uid not in exist_cites]
+    update_cites = [c for c in prog_cites if c.uid in exist_cites]
+    e = cur.execute('select * from authors')
+    exist_authors = [a[1:2] for a in e.fetchall()]
+    prog_authors = [a.authors for a in cite_list]
+    diff = compare(exist_authors, prog_authors)
+    update_authors = diff[0:2]
+    new_authors = diff[3]
+    e = cur.execute('select * from editors')
+    exist_editors = [a[1:2] for a in e.fetchall()]
+    prog_editors = [a.editors for a in cite_list]
+    diff = compare(exist_editors, prog_editors)
+    update_editors = diff[0:2]
+    new_editors = diff[3]
+    e = cur.execute('select * from translators')
+    exist_translators = [a[1:2] for a in e.fetchall()]
+    prog_translators = [a.translators for a in cite_list]
+    diff = compare(exist_translators, prog_translators)
+    update_translators = diff[0:2]
+    new_translators = diff[3]
+    #USE UPDATE INSTEAD OF REPLACE
+    for c in cite_list:
+        k =[('uid',c.uid),('fatemi',c.fatemi),('titleAra',c.titleAra),
+        ('titleEng',c.titleEng),('type',c.type),('istinsakh',c.istinsakh),
+        ('publisherAra',c.publisherAra),('publisherEng',c.publisherEng),
+        ('pub_dateH',c.pub_dateH),('pub_dateG',c.pub_dateG),
+        ('pub_placeAra',c.pub_placeAra),('pub_placeEng',c.pub_placeEng),
+        ('volumes',c.volumes),('pages',c.pages),('notesAra',c.notesAra),
+        ('notesEng',c.notesEng),('partOf',c.partOf)]
+        e = cur.execute('''SELECT * FROM kitabs WHERE uid = "?"''', c.uid)
+        for at in c.authors:
+            if at in new_authors:
+                ins = 'INSERT INTO authors (nameAra = "{0}", nameEng = "{1}");'.format(
+                            at[0],at[1])
+                cur.execute(ins)
+            elif at in update_authors[0]:
+                upd = 'UPDATE authors SET nameAra = "{0}" WHERE nameEng = "{1}";'
+            elif at in update_authors[1]:
+                upd = 'UPDATE authors SET nameEng = "{1}" WHERE nameAra = "{0}";'
+            upd = upd.format(at[0], at[1])
+            cur.execute(upd)
+                        
+        for ed in c.editors:
+            if ed in new_editors:
+                ins = 'INSERT INTO editors (nameAra = "{0}", nameEng = "{1}");'.format(
+                            ed[0],ed[1])
+                cur.execute(ins)
+            elif ed in update_editors[0]:
+                upd = 'UPDATE editors SET nameAra = "{0}" WHERE nameEng = "{1}";'
+            elif ed in update_editors[1]:
+                upd = 'UPDATE editors SET nameEng = "{1}" WHERE nameAra = "{0}";'
+            upd = upd.format(ed[0], ed[1])
+            cur.execute(upd)
+
+        for tr in c.translators:
+            if tr in new_translators:
+                ins = 'INSERT INTO translators (nameAra = "{0}", nameEng = "{1}");'.format(
+                            tr[0],tr[1])
+                cur.execute(ins)
+            elif tr in update_translators[0]:
+                upd = 'UPDATE translators SET nameAra = "{0}" WHERE nameEng = "{1}";'
+            elif tr in update_translators[1]:
+                upd = 'UPDATE translators SET nameEng = "{1}" WHERE nameAra = "{0}";'
+            upd = upd.format(tr[0], tr[1])
+            cur.execute(upd)
+        if e.fetchall():
+            for i in k[1:]:               
+                kit = 'UPDATE kitabs SET {0} WHERE uid = "{1}";'
+                entry = '"{0}" = "{1}"'.format(i[0], i[1])
+                kit = kit.format(kit,c.uid)
+                cur.execute(kit)
+        else:    
+            kit = 'INSERT INTO kitabs ({0});'
+            entry = ''
+            for i in k[:-1]:
+                if i:
+                    entry += '"{0}" = "{1}",'.format(i[0],i[1])
+            if k[-1]:
+                entry += '"{0}" = "{1}"'.format(k[-1][0],k[-1][0])
+            kit = kit.format(entry)
+            cur.execute(kit)
+        
+        def indices(person,abbv):
+            au_index = 1
+            index = cur.execute("""
+SELECT ?_index FROM booktoauthors
+WHERE kit ='?' ORDER BY ?_index;""", (abbv,c.uid,abbv))
+            index = index.fetchall()
+            ind_list = []
+            for i in index:
+                names = cur.execute(
+'''SELECT nameAra, nameEng FROM ? WHERE id = ?;''',
+(person, i))
+                names = names.fetchall()
+                ind_list.append(names)
+            return ind_list
+        
+        a = indices('authors','aut')
+        e = indices('editors', 'edi')
+        t = indices('translators', 'tra')                
+                
+        if a == c.authors: pass
+        else:
+            ind = 0
+            for auth in c.authors:
+                if auth == a[ind]:
+                    ind += 1
+                else: 
+                    a[ind] = auth
+                    a_ind = cur.execute("""
+SELECT id FROM authors where nameEng = '?';""",
+auth[1]).fetchone()
+                    cur.execute("""
+INSERT INTO booktoauthors (kit,aut,aut_index)
+VALUES (?,?,?);""",(c.uid,a_ind[0],ind+1))
+                    ind += 1
+        if e == c.editors: pass
+        else:
+            ind = 0
+            for edi in c.editors:
+                if edi == e[ind]:
+                    ind += 1
+                else: 
+                    e[ind] = edi
+                    e_ind = cur.execute("""
+SELECT id FROM editors where nameEng = '?';""",
+edi[1]).fetchone()
+                    cur.execute("""
+INSERT INTO booktoauthors (kit,edi,edi_index)
+VALUES (?,?,?);""",(c.uid,e_ind[0],ind))
+                    ind += 1
+        if t == c.translators: pass
+        else:
+            ind = 0
+            for tra in c.translators:
+                if tra == t[ind]:
+                    ind += 1
+                else: 
+                    t[ind] = tra
+                    t_ind = cur.execute("""
+SELECT id FROM translators where nameEng = '?';""",
+auth[1]).fetchone()
+                    cur.execute("""
+INSERT INTO booktoauthors (kit,tra,tra_index)
+VALUES (?,?,?);""",(c.uid,t_ind[0],ind))
+                    ind += 1
+    cur.commit()
         
 def basic_query(typ = 'author', multi = 'y', what = 'name', form = ''):
     basic = []
@@ -269,124 +497,7 @@ def menu(x):
     else:
         print "Choose an option"
         c = 0
-    return b,x,c
-
-def opening_db(file_name, cite_db):
-    conn = sqlite3.connect(file_name)
-    cur = conn.cursor()
-    cur.execute('select * from kitabs')
-    cites = []
-    for i in cur.fetchall():
-        c = citat.Citation()
-        c.uid = i[0]
-        c.fatemi = i[1]
-        c.name = (i[2],i[3])
-        c.c_type = i[4] #type in kitabs.type
-        c.istinsakh = i[5]
-        c.publisher = (i[6],i[7])
-        c.pub_date = (i[8],i[9])
-        c.pub_place = (i[10],i[11])
-        c.volumes = i[12]
-        c.pages = i[13]
-        c.notes = (i[14], i[15])
-        auth = []
-        edi = []
-        tra = []
-        cur = conn.cursor()
-        cur.execute('''select * from booktoauthors
-where booktoauthors.kit = "?";''', i[0])
-        aet = cur.fetchall()
-        for z in aet:
-            cur.execute('''select * from authors where authors.id = "?";''', z[1])
-            auth_info = cur.fetchall()
-            f = auth_info[3]
-            a = (auth_info[1],auth_info[2])
-            ai = z[2]
-            ac = auth_info[4]
-            auth.append((a,ai,ac))
-            cur.execute('''select * from editors where editors.id = "?";''', z[3])
-            edi_info = cur.fetchall()
-            e = (edi_info[1], edi_info[2])
-            ei = z[4]
-            edi.append((e,ei))
-            cur.execute('''select * from translators where translators.id = "?";''',z[5])
-            tra_info = cur.fetchall()
-            t = (tra_info[6],tra_info[7])
-            ti = z[6]
-            tra.append((t,ti))
-        c.authors = [at[0] for at in sorted(auth, key = itemgetter(1))]
-        c.editors = [et[0] for et in sorted(edi, key = itemgetter(1))]
-        c.translators = [tr[0] for tr in sorted(tra, key =  itemgetter(1))]
-        cites.append(c)
-    conn.close()
-    return cites
-
-def compare(list1, list2):
-    equal = []
-    different = []
-    new = []
-    for a in list1:
-        for b in list2:
-            if a == b:
-               equal.append(a)
-            elif (a[0] or a[1]) == (b[0] or b[1]):
-               different.append(a)
-            elif (a[0] and a[1]) != (b[0] and b[1]):
-               new.append(a)
-               
-    return equal,different,new     
-
-def saving_db(file_name, cite_list):
-    conn = sqlite3.connect(file_name)
-    cur = conn.cursor()
-    e = cur.execute('select * from kitabs')
-    exist_cites = [c[0] for c in e.fetchall()]
-    prog_cites = [c for c in cite_list]
-    new_cites = [c for c in prog_cites if c.uid not in exist_cites]
-    update_cites = [c for c in prog_cites if c.uid in exist_cites]
-    e = cur.execute('select * from authors')
-    exist_authors = [a[1:2] for a in e.fetchall()]
-    prog_authors = [a.authors for a in cite_list]
-    diff = compare(exist_authors, prog_authors)
-    update_authors = diff[0:1]
-    new_authors = diff[2]
-    e = cur.execute('select * from editors')
-    exist_editors = [a[1:2] for a in e.fetchall()]
-    prog_editors = [a.editors for a in cite_list]
-    diff = compare(exist_editors, prog_editors)
-    update_editors = diff[0:1]
-    new_editors = diff[2]
-    e = cur.execute('select * from translators')
-    exist_translators = [a[1:2] for a in e.fetchall()]
-    prog_translators = [a.translators for a in cite_list]
-    diff = compare(exist_translators, prog_translators)
-    update_translators = diff[0:1]
-    new_translators = diff[2]
-    #USE UPDATE INSTEAD OF REPLACE
-    for c in cite_list:
-        k =[('uid',c.uid),('fatemi',c.fatemi),('titleAra',c.titleAra),
-        ('titleEng',c.titleEng),('type',c.type),('istinsakh',c.istinsakh),
-        ('publisherAra',c.publisherAra),('publisherEng',c.publisherEng),
-        ('pub_dateH',c.pub_dateH),('pub_dateG',c.pub_dateG),
-        ('pub_placeAra',c.pub_placeAra),('pub_placeEng',c.pub_placeEng),
-        ('volumes',c.volumes),('pages',c.pages),('notesAra',c.notesAra),
-        ('notesEng',c.notesEng),('partOf',c.partOf)]
-        e = cur.execute('''SELECT * FROM kitabs WHERE uid = ?''', c.uid)
-        if e.fetchall():
-            for i in k:
-                authors_sql = '''UPDATE authors SET '''
-                editors_sql = '''UPDATE editors SET '''
-                trans_sql = '''UPDATE translators SET '''
-                kitabs_sql = '''UPDATE kitabs SET '''
-                authors_sql += '{0} = {1}
-            
-        
-        
-          
-            
-        
-        
-        
+    return b,x,c     
    
 if __name__ =='__main__':
     opening = verify(query = 'Is there a preexisting list of citations? (y or n): ')
@@ -416,8 +527,4 @@ if __name__ =='__main__':
         print i
     save = verify(query = "Would you like to save these citations? (y or n)")
     if save:
-        pass      
-            
-            
-            
-            
+        pass
