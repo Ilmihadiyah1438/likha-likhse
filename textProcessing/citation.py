@@ -6,7 +6,9 @@
 #asta'eeno fi jamee' il umoor
 import re, codecs, brevity,pprint, citat, sqlite3
 from operator import itemgetter
+from os.path import dirname,join
 citation = []
+cur_dir = dirname(__file__)
 def form_re(cite_type, order):
     dlmtr_name = raw_input(
     	str('name delimiter: '))
@@ -33,7 +35,7 @@ def num_verify(query = ''):
             n = raw_input(str('''Please enter only integers. {0}
 (if unknown, enter 0): '''.format(query)))
     return n
-def opening_db(file_name, cite_db):
+def opening_db(file_name):
     conn = sqlite3.connect(file_name)
     cur = conn.cursor()
     cur.execute('select * from kitabs')
@@ -101,12 +103,12 @@ def compare(list1, list2):
                
     return equal,diff1,diff2,new     
 
-def saving_db(file_name, cite_list):
+def saving_db(file_name,cite_list):
     create = ''
     try:
         codecs.open(file_name)
     except IOError:
-        create = codecs.open('biblio.sql','r').read()
+        create = codecs.open(join(cur_dir,'biblio.sql'),'r').read()
     conn = sqlite3.connect(file_name)
     if create:
         conn.execute(create)
@@ -464,39 +466,29 @@ def menu(x):
     """
     elif cite_type == 'skip':
         x += 1
-        c = 1
     elif ('book' or '1') in cite_type:
         if 'I' in cite_type:
             b = bookIS_query()
         else: b = bookPrint_query()
         x+=1
-        c = 1
     elif ('qasida' or '2') in cite_type:
         b = qasida_query()
         x += 1
-        c = 1
     elif ('living' or '3') in cite_type:
         print 'Not available at this moment\n'
         x += 1
-        c = 1
     elif ('website' or '4') in cite_type:
         b = website_query()
         x += 1
-        c = 1
     elif ('journal' or '5') in cite_type:
         b = journal_query()
         x += 1
-        c = 1
-    #elif ('save and close' or '0') in cite_type:
-        #print 'Goodbye, saving....\n'
-        #out_name = raw_input(str("Enter out file name: "))
-        #out = codecs.open(out_name, 'w', 'utf-8')
-        #out.write(citations)
-    #elif ('close w/o save' or '!') in cite_type:
-        #print 'Not saving, goodbye \n'
     else:
         print "Choose an option"
         c = 0
+    more = verify('Any more citations (y or n)')
+    if more: c = 0
+    else: c = 1
     return b,x,c     
    
 if __name__ =='__main__':
@@ -507,13 +499,18 @@ if __name__ =='__main__':
     x = 1
     if opening:
         cite_name = raw_input(str("Citation file: "))
-        cite_file = codecs.open(cite_name,'r', 'utf-8')
-        cite_raw = cite_file.readlines()
-        for c in cite_raw:
-            print x, '\t', c.encode('utf-8')
-            while c == 0:
-                result = menu()
-                cites.append(result[0])
+        if '/' or '\\' not in cite_name:
+            cite_name = join(cur_dir,cite_name)
+        if cite_name[-2:] == 'db':
+            cites=opening_db(cite_name)
+        else:
+            cite_file = codecs.open(cite_name,'r', 'utf-8')
+            cite_raw = cite_file.readlines()
+            for c in cite_raw:
+                print x, '\t', c.encode('utf-8')
+                while c == 0:
+                    result = menu()
+                    cites.append(result[0])
                 x = result[1]
                 c = result[2]
     else:
@@ -524,7 +521,11 @@ if __name__ =='__main__':
            c = result[2]
                     
     for i in cites:
-        print i
+        print i.encode('utf-8')
     save = verify(query = "Would you like to save these citations? (y or n)")
     if save:
-        pass
+        dest = raw_input(str('Enter destination file name: '))
+        if '/' or '\\' not in dest:
+            dest = join(cur_dir, dest)
+        saving_db(dest,cites)
+print 'Goodbye\n'
