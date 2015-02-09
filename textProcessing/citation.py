@@ -8,6 +8,7 @@ import re, codecs, brevity,pprint, citat, sqlite3
 from operator import itemgetter
 from os.path import dirname,join
 citation = []
+print __file__
 cur_dir = dirname(__file__)
 def form_re(cite_type, order):
     dlmtr_name = raw_input(
@@ -495,6 +496,8 @@ if __name__ =='__main__':
     opening = verify(query = 'Is there a preexisting list of citations? (y or n): ')
     citations = ''
     cites = []
+    print __file__
+    cur_dir = dirname(__file__)
     c = 0
     x = 1
     if opening:

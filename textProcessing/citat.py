@@ -17,22 +17,17 @@ class Citation(object):
             self.uid = uid
             #uid for citation
         else: 
-            self.uid = uid, (name[0] + str(random.random()))
-        #names are 2-tuples (prefix+first, last+suffix)    
-        self.authors = self.__names(nameAuthors)
-        self.editors = self.__names(nameEditors)
-        self.translators = self.__names(nameTranslators)
+            print name[1].encode('utf-8')
+            self.uid = name[1] + str(int(random.random()))
         
+        self.editors = self.__names(nameEditors)
+        self.translators = self.__names(nameTranslators) 
         self.c_type = c_type
         self.name = name #title of work
         self.saheb = nameSaheb
-        if fatemi:
-            self.author = self.saheb
-        else:
-            self.author = self.authors
-        self.publisher = pubA, pubE #for istinsakh - name of khizana
-        self.pub_date = yearH, yearM #for istinsakh - date of IS
-        self.pub_place = placeA, placeE # for istinsakh - place of khizana
+        self.publisher = pub #for istinsakh - name of khizana
+        self.pub_date = year #for istinsakh - date of IS
+        self.pub_place = place # for istinsakh - place of khizana
         self.istinsakh = 0
         self.volumes = 0
         self.multivolume = 0
@@ -47,6 +42,10 @@ class Citation(object):
         self.notes = (u'-',u'-')
         self.partOf = (u'-',u'-')
     def fullnote(self,page, lang):
+        #names are 2-tuples (prefix+first, last+suffix)    
+        self.authors = self.__names(nameAuthors)
+        self.editors = self.__names(nameEditors)
+        self.translators = self.__names(nameTranslators)
         n = {}
         if lang == 'ara':
             if self.fatemi:
@@ -87,6 +86,10 @@ class Citation(object):
         return note                          
                                     
     def shortnote(self,page, lang):
+        #names are 2-tuples (prefix+first, last+suffix)    
+        self.authors = self.__names(nameAuthors)
+        self.editors = self.__names(nameEditors)
+        self.translators = self.__names(nameTranslators)
         if lang == 'ara':
             if self.fatemi:
                 author = self.saheb[0]
@@ -118,6 +121,10 @@ class Citation(object):
         return note
                                                 
     def biblio(self, auth = 1, lang = 'ara'):
+        #names are 2-tuples (prefix+first, last+suffix)    
+        self.authors = self.__names(nameAuthors)
+        self.editors = self.__names(nameEditors)
+        self.translators = self.__names(nameTranslators)
         if lang == 'ara':
             if auth == 0:
                 authors = u'---'
@@ -271,27 +278,37 @@ If no equivalents available, an empty
 ------------------------------------------
 Title:\t {name} \t|\t {nameAra}
 Author(s):\t {authors}
-Editors{s):\t {editors}
+Editors(s):\t {editors}
 Translator(s):\t {translators}
 Pub_detail:\t {city}: {publisher}, {date}
 Pages: {pgs}
 
 """
+        author = u'{0}, {1}, '
         if self.fatemi:
-            authors = self.saheb[1]
+            authors = ''.join([i for i in self.saheb[1]])
         else: 
             athrs = [i[1] for i in self.authors]
-            authors = ''
-            author = '{0}, {1}, '
+            authors = u''
             for i in athrs:
-              authors += author.format(i[0],i[1])
-        out = s.format(uid = self.uid, c_type = self.c_type,
-            name = self.name[1], nameAra = self.name[0],
-            authors = authors, city = self.pub_place[1],
-            pblshr = self.publisher[1], date = self.pub_date[1], 
-            pgs = self.pages, f = self.fatemi)
-        print out.encode('utf-8')
-
+              authors = ' '.join([author.format(i[0],i[1]) for i in athrs])
+        try:
+            print authors.encode('utf-8')
+        except AttributeError:
+            print authors
+        editors = u' '
+        translators = u' '
+        edtrs = [i[1] for i in self.editors]
+        trnsltrs = [i[1] for i in self.translators]
+        editors = ' '.join([author.format(i[0],i[1]) for i in edtrs])
+        translators = ' '.join([author.format(i[0],i[1]) for i in trnsltrs])
+        out = s.format(**{u'uid':self.uid, u'c_type':self.c_type,
+            u'name':self.name[1], u'nameAra':self.name[0],
+            u'authors':authors, u'editors':editors,
+            u'translators':translators, u'city':self.pub_place[1],
+            u'publisher':self.publisher[1], u'date':self.pub_date[1], 
+            u'pgs':self.pages, u'f':self.fatemi})
+        return out.encode('utf-8')
         
 class Journal(Citation):
     def __init__(self, uid = '',  title = '', saheb = ('',''), 
@@ -326,17 +343,17 @@ class Website(Citation):
             year = date, place = url, fatemi = 1)
         
 class BookPrint(Citation):
-    def __init__(self, uid = '',  title = ('',''), nameSaheb = ('',''),
+    def __init__(self, uid = '',  title = ('',''), saheb= ('',''),
                  authors = [('',''),('', '')], editors = [('',''),('', '')],
                  translators = [('',''),('', '')], publisher = ('',''), place = ('',''),
                  year = ('',''), pages = '', fatemi = 1):
         super(BookPrint, self).__init__(
             uid = uid, c_type = 'bookPrnt', name = title, nameSaheb = saheb,
             nameAuthors = authors, nameEditors = editors,
-            nameTranslators = translators, pub = publish, place = place, year = year, pages = pages, fatemi = fatemi)
+            nameTranslators = translators, pub = publisher, place = place, year = year, pages = pages, fatemi = fatemi)
         
 class BookIS(Citation):
-    def __init__(self, uid = '',  title = ('',''), nameSaheb = ('',''),
+    def __init__(self, uid = '',  title = ('',''), saheb = ('',''),
                  authors = [('',''),('','')], khizana = ('',''),
                  location = ('',''), year = ('', ''), pages = '', fatemi = 1):
         super(BookPrint, self).__init__(
@@ -344,7 +361,7 @@ class BookIS(Citation):
             pub = khizana, place = location, year = year, pages = pages, fatemi = fatemi)
 class Living(Citation):
     def __init__(self, uid = '',  title = '', name = '',nameAra = '', 
-                 authors = [('','','')], authorsAra = [('', '', '')],
+                 authors = [('','','')],
                  pubA = '', pubE = '', placeA = '', placeE = '',
                  yearH = '', yearM = '', pages = '', fatemi = 1):
         pass
