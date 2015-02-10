@@ -66,23 +66,23 @@ where booktoauthors.kit = "?";''', i[0])
             cur.execute(u'''select * from authors where authors.id = "?";''', z[1])
             auth_info = cur.fetchall()
             f = auth_info[3]
-            a = (auth_info[1],auth_info[2])
+            a = (auth_info[1:2],auth_info[3:4])
             ai = z[2]
-            ac = auth_info[4]
-            auth.append((a,ai,ac))
+            ac = auth_info[5]
+            auth.append((a,ai))
             cur.execute(u'''select * from editors where editors.id = "?";''', z[3])
             edi_info = cur.fetchall()
-            e = (edi_info[1], edi_info[2])
+            e = (edi_info[1:2], edi_info[3:4])
             ei = z[4]
             edi.append((e,ei))
             cur.execute(u'''select * from translators where translators.id = "?";''',z[5])
             tra_info = cur.fetchall()
-            t = (tra_info[6],tra_info[7])
+            t = (tra_info[1:2],tra_info[3:4])
             ti = z[6]
             tra.append((t,ti))
-        c.authors = [at[0] for at in sorted(auth, key = itemgetter(1))]
-        c.editors = [et[0] for et in sorted(edi, key = itemgetter(1))]
-        c.translators = [tr[0] for tr in sorted(tra, key =  itemgetter(1))]
+        c.authors = c.__names([at[0] for at in sorted(auth, key = itemgetter(1))])
+        c.editors = c.__names([et[0] for et in sorted(edi, key = itemgetter(1))])
+        c.translators = c.__names([tr[0] for tr in sorted(tra, key =  itemgetter(1))])
         cites.append(c)
     conn.close()
     return cites
@@ -150,7 +150,7 @@ def saving_db(file_name,cite_list):
         e = cur.execute(u'''SELECT * FROM kitabs WHERE uid = "?"''', c.uid)
         for at in c.authors:
             if at in new_authors:
-                ins = u'INSERT INTO authors (nameAra = "{0}", nameEng = "{1}");'.format(
+                ins = u'INSERT INTO authors (firstnameAra, nameEng) VALUES ("{0}","{1}");'.format(
                             at[0],at[1])
                 cur.execute(ins)
             elif at in update_authors[0]:
@@ -162,7 +162,7 @@ def saving_db(file_name,cite_list):
                         
         for ed in c.editors:
             if ed in new_editors:
-                ins = u'INSERT INTO editors (nameAra = "{0}", nameEng = "{1}");'.format(
+                ins = u'INSERT INTO editors (nameAra, nameEng) VALUES ("{0}","{1}");'.format(
                             ed[0],ed[1])
                 cur.execute(ins)
             elif ed in update_editors[0]:
@@ -174,7 +174,7 @@ def saving_db(file_name,cite_list):
 
         for tr in c.translators:
             if tr in new_translators:
-                ins = u'INSERT INTO translators (nameAra = "{0}", nameEng = "{1}");'.format(
+                ins = u'INSERT INTO translators (nameAra, nameEng) VALUES ("{0}","{1}");'.format(
                             tr[0],tr[1])
                 cur.execute(ins)
             elif tr in update_translators[0]:
@@ -190,14 +190,19 @@ def saving_db(file_name,cite_list):
                 kit = kit.format(kit,c.uid)
                 cur.execute(kit)
         else:    
-            kit = u'INSERT INTO kitabs ({0});'
-            entry = ''
+            kit = u'INSERT INTO kitabs ({0}) VALUES ({1});'
+            entry0 = ''
+            entry1 = ''
             for i in k[:-1]:
                 if i:
-                    entry += u'"{0}" = "{1}",'.format(i[0],i[1])
+                    entry0 += u'"{0}",'.format(i[0])
+                    entry1 += u'"{0}",'.format(i[1])
             if k[-1]:
-                entry += u'"{0}" = "{1}"'.format(k[-1][0],k[-1][0])
-            kit = kit.format(entry)
+                entry0 += u'"{0}"'.format(k[-1][0])
+                entry1 += u'"{0}"'.format(k[-1][0])
+            if entry0[-1] == u',': entry0 = entry0[:-1]
+            if entry1[-1] == u',': entry1 = entry1[:-1]
+            kit = kit.format(entry0,entry1)
             cur.execute(kit)
         
         def indices(person,abbv):

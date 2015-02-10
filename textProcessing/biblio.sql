@@ -18,17 +18,24 @@ CREATE TABLE kitabs(
 	partOf TEXT REFERENCES kitabs (uid));
 CREATE TABLE authors(
 	id INTEGER AUTOINCREMENT PRIMARY KEY,
-	nameAra TEXT,
-	nameEng TEXT,
+	firstnameAra TEXT,
+ lastnameAra TEXT,
+	firstnameEng TEXT,
+ lastnameEng TEXT,
+ chrono INTEGER,
 	fatemi INTEGER);
 CREATE TABLE editors(
 	id INTEGER AUTOINCREMENT PRIMARY KEY,
-	nameAra TEXT,
-	nameEng TEXT);
+	firstnameAra TEXT,
+ lastnameAra TEXT,
+	firstnameEng TEXT,
+ lastnameEng TEXT);
 CREATE TABLE translators(
 	id INTEGER AUTOINCREMENT PRIMARY KEY,
-	nameAra TEXT,
-	nameEng TEXT);
+	firstnameAra TEXT,
+ lastnameAra TEXT,
+	firstnameEng TEXT,
+ lastnameEng TEXT);
 CREATE TABLE booktoauthors(
 	kit REFERENCES kitabs(uid),
 	aut REFERENCES authors(id),
