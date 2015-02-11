@@ -150,26 +150,34 @@ def saving_db(file_name,cite_list):
         e = cur.execute(u'''SELECT * FROM kitabs WHERE uid = "?"''', c.uid)
         for at in c.authors:
             if at in new_authors:
-                ins = u'INSERT INTO authors (firstnameAra, nameEng) VALUES ("{0}","{1}");'.format(
-                            at[0],at[1])
-                cur.execute(ins)
-            elif at in update_authors[0]:
-                upd = u'UPDATE authors SET nameAra = "{0}" WHERE nameEng = "{1}";'
+                cur.execute(u'''INSERT INTO authors 
+(firstnameAra, lastnameAra, firstnameEng, lastnameEng) 
+VALUES ("?","?","?","?");''',at[0:3])
+            if at in update_authors[0]:
+                upd = u'UPDATE authors
+ SET (firstnameAra = "{0}", lastnameAra = "{1}")
+ WHERE firstnameEng = "{2}" AND lastnameEng = "{3}";'
             elif at in update_authors[1]:
-                upd = u'UPDATE authors SET nameEng = "{1}" WHERE nameAra = "{0}";'
-            upd = upd.format(at[0], at[1])
+                upd = u'UPDATE authors
+ SET (firstnameEng = "{2}", lastnameEng = "{3}")
+ WHERE firstnameAra = "{0}" AND lastnameAra = "{1}";'
+            upd = upd.format(at[0:3])
             cur.execute(upd)
                         
         for ed in c.editors:
-            if ed in new_editors:
-                ins = u'INSERT INTO editors (nameAra, nameEng) VALUES ("{0}","{1}");'.format(
-                            ed[0],ed[1])
-                cur.execute(ins)
-            elif ed in update_editors[0]:
-                upd = u'UPDATE editors SET nameAra = "{0}" WHERE nameEng = "{1}";'
-            elif ed in update_editors[1]:
-                upd = u'UPDATE editors SET nameEng = "{1}" WHERE nameAra = "{0}";'
-            upd = upd.format(ed[0], ed[1])
+            if at in new_editors:
+                cur.execute(u'''INSERT INTO editors 
+(firstnameAra, lastnameAra, firstnameEng, lastnameEng) 
+VALUES ("?","?","?","?");''',at[0:3])
+            if at in update_authors[0]:
+                upd = u'UPDATE authors
+ SET (firstnameAra = "{0}", lastnameAra = "{1}")
+ WHERE firstnameEng = "{2}" AND lastnameEng = "{3}";'
+            elif at in update_authors[1]:
+                upd = u'UPDATE authors
+ SET (firstnameEng = "{2}", lastnameEng = "{3}")
+ WHERE firstnameAra = "{0}" AND lastnameAra = "{1}";'
+            upd = upd.format(at[0:3])
             cur.execute(upd)
 
         for tr in c.translators:

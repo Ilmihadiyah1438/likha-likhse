@@ -1,9 +1,9 @@
 CREATE TABLE kitabs(
-	uid TEXT UNIQUE,
+	k_uid TEXT UNIQUE,
 	fatemi INTEGER,
 	titleAra TEXT,
 	titleEng TEXT,
-	type TEXT,
+	c_type TEXT,
 	istinsakh INTEGER,
 	publisherAra TEXT,
 	publisherEng TEXT,
@@ -15,41 +15,34 @@ CREATE TABLE kitabs(
 	pages TEXT,
 	notesAra TEXT,
 	notesEng TEXT,
-	partOf TEXT REFERENCES kitabs (uid));
-CREATE TABLE authors(
-	id INTEGER AUTOINCREMENT PRIMARY KEY,
-	firstnameAra TEXT,
- lastnameAra TEXT,
-	firstnameEng TEXT,
- lastnameEng TEXT,
- chrono INTEGER,
-	fatemi INTEGER);
-CREATE TABLE editors(
-	id INTEGER AUTOINCREMENT PRIMARY KEY,
-	firstnameAra TEXT,
- lastnameAra TEXT,
-	firstnameEng TEXT,
- lastnameEng TEXT);
-CREATE TABLE translators(
-	id INTEGER AUTOINCREMENT PRIMARY KEY,
-	firstnameAra TEXT,
- lastnameAra TEXT,
-	firstnameEng TEXT,
- lastnameEng TEXT);
+	partOf TEXT REFERENCES kitabs (k_uid));
+
+CREATE TABLE names(
+id INTEGER AUTOINCREMENT PRIMARY KEY,
+firstnameAra TEXT,
+lastnameAra TEXT,
+firstnameEng TEXT,
+lastnameEng TEXT,
+position INTEGER,
+fatemi INTEGER,
+chrono INTEGER);
+
 CREATE TABLE booktoauthors(
-	kit REFERENCES kitabs(uid),
-	aut REFERENCES authors(id),
+	kit REFERENCES kitabs(k_uid),
+	aut REFERENCES names(id),
 	aut_index INTEGER,
-	edi REFERENCES editors(id),
+	edi REFERENCES names(id),
 	edi_index INTEGER,
-	tra REFERENCES translators(id),
+	tra REFERENCES names(id),
 	tra_index INTEGER);
+
 CREATE TABLE chapters(
 	id INTEGER PRIMARY KEY,
-	kit REFERENCES kitabs(uid),
+	kit REFERENCES kitabs(k_uid),
 	chapterAra TEXT,
 	chapterEng TEXT,
 	chapter_index INTEGER);
-	
+
+
 	
 	
