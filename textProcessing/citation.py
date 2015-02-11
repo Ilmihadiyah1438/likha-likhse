@@ -4,7 +4,7 @@
 #786
 #bihi wa bi waliyyihi wa bi daihi Syedna Aali Qadr Mufaddal Saifuddin TUS
 #asta'eeno fi jamee' il umoor
-import re, codecs, brevity,pprint, citat, sqlite3
+import re, codecs, citat, sqlite3
 from operator import itemgetter
 from os.path import dirname,join
 from getdir import curdir
@@ -63,19 +63,19 @@ def opening_db(file_name):
 where booktoauthors.kit = "?";''', i[0])
         aet = cur.fetchall()
         for z in aet:
-            cur.execute(u'''select * from authors where authors.id = "?";''', z[1])
+            cur.execute(u'''select * from names where names.id = "?";''', z[1])
             auth_info = cur.fetchall()
             f = auth_info[3]
             a = (auth_info[1:2],auth_info[3:4])
             ai = z[2]
             ac = auth_info[5]
             auth.append((a,ai))
-            cur.execute(u'''select * from editors where editors.id = "?";''', z[3])
+            cur.execute(u'''select * from names where names.id = "?";''', z[3])
             edi_info = cur.fetchall()
             e = (edi_info[1:2], edi_info[3:4])
             ei = z[4]
             edi.append((e,ei))
-            cur.execute(u'''select * from translators where translators.id = "?";''',z[5])
+            cur.execute(u'''select * from names where names.id = "?";''',z[5])
             tra_info = cur.fetchall()
             t = (tra_info[1:2],tra_info[3:4])
             ti = z[6]
@@ -120,19 +120,22 @@ def saving_db(file_name,cite_list):
     prog_cites = [c for c in cite_list]
     new_cites = [c for c in prog_cites if c.uid not in exist_cites]
     update_cites = [c for c in prog_cites if c.uid in exist_cites]
-    e = cur.execute(u'select * from authors')
+    e = cur.execute(u'select * from names
+WHERE position = 1 OR 3 OR 5 OR 7;')
     exist_authors = [a[1:2] for a in e.fetchall()]
     prog_authors = [a.authors for a in cite_list]
     diff = compare(exist_authors, prog_authors)
     update_authors = diff[0:2]
     new_authors = diff[3]
-    e = cur.execute(u'select * from editors')
+    e = cur.execute(u'select * from names 
+WHERE position = 2 OR 3 OR 6 OR 7;')
     exist_editors = [a[1:2] for a in e.fetchall()]
     prog_editors = [a.editors for a in cite_list]
     diff = compare(exist_editors, prog_editors)
     update_editors = diff[0:2]
     new_editors = diff[3]
-    e = cur.execute(u'select * from translators')
+    e = cur.execute(u'select * from names
+WHERE position = 4 OR 5 OR 6 OR 7;')
     exist_translators = [a[1:2] for a in e.fetchall()]
     prog_translators = [a.translators for a in cite_list]
     diff = compare(exist_translators, prog_translators)
@@ -150,7 +153,7 @@ def saving_db(file_name,cite_list):
         e = cur.execute(u'''SELECT * FROM kitabs WHERE uid = "?"''', c.uid)
         for at in c.authors:
             if at in new_authors:
-                cur.execute(u'''INSERT INTO authors 
+                cur.execute(u'''INSERT INTO names 
 (firstnameAra, lastnameAra, firstnameEng, lastnameEng) 
 VALUES ("?","?","?","?");''',at[0:3])
             if at in update_authors[0]:
