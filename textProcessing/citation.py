@@ -120,22 +120,22 @@ def saving_db(file_name,cite_list):
     prog_cites = [c for c in cite_list]
     new_cites = [c for c in prog_cites if c.uid not in exist_cites]
     update_cites = [c for c in prog_cites if c.uid in exist_cites]
-    e = cur.execute(u'select * from names
-WHERE position = 1 OR 3 OR 5 OR 7;')
+    e = cur.execute(u'''select * from names
+WHERE position = 1 OR 3 OR 5 OR 7;''')
     exist_authors = [a[1:2] for a in e.fetchall()]
     prog_authors = [a.authors for a in cite_list]
     diff = compare(exist_authors, prog_authors)
     update_authors = diff[0:2]
     new_authors = diff[3]
-    e = cur.execute(u'select * from names 
-WHERE position = 2 OR 3 OR 6 OR 7;')
+    e = cur.execute(u'''select * from names 
+WHERE position = 2 OR 3 OR 6 OR 7;''')
     exist_editors = [a[1:2] for a in e.fetchall()]
     prog_editors = [a.editors for a in cite_list]
     diff = compare(exist_editors, prog_editors)
     update_editors = diff[0:2]
     new_editors = diff[3]
-    e = cur.execute(u'select * from names
-WHERE position = 4 OR 5 OR 6 OR 7;')
+    e = cur.execute(u'''select * from names
+WHERE position = 4 OR 5 OR 6 OR 7;''')
     exist_translators = [a[1:2] for a in e.fetchall()]
     prog_translators = [a.translators for a in cite_list]
     diff = compare(exist_translators, prog_translators)
@@ -157,13 +157,13 @@ WHERE position = 4 OR 5 OR 6 OR 7;')
 (firstnameAra, lastnameAra, firstnameEng, lastnameEng) 
 VALUES ("?","?","?","?");''',at[0:3])
             if at in update_authors[0]:
-                upd = u'UPDATE authors
+                upd = u'''UPDATE names
  SET (firstnameAra = "{0}", lastnameAra = "{1}")
- WHERE firstnameEng = "{2}" AND lastnameEng = "{3}";'
+ WHERE firstnameEng = "{2}" AND lastnameEng = "{3}";'''
             elif at in update_authors[1]:
-                upd = u'UPDATE authors
+                upd = u'''UPDATE names
  SET (firstnameEng = "{2}", lastnameEng = "{3}")
- WHERE firstnameAra = "{0}" AND lastnameAra = "{1}";'
+ WHERE firstnameAra = "{0}" AND lastnameAra = "{1}";'''
             upd = upd.format(at[0:3])
             cur.execute(upd)
                         
@@ -173,13 +173,13 @@ VALUES ("?","?","?","?");''',at[0:3])
 (firstnameAra, lastnameAra, firstnameEng, lastnameEng) 
 VALUES ("?","?","?","?");''',at[0:3])
             if at in update_authors[0]:
-                upd = u'UPDATE authors
+                upd = u'''UPDATE authors
  SET (firstnameAra = "{0}", lastnameAra = "{1}")
- WHERE firstnameEng = "{2}" AND lastnameEng = "{3}";'
+ WHERE firstnameEng = "{2}" AND lastnameEng = "{3}";'''
             elif at in update_authors[1]:
-                upd = u'UPDATE authors
+                upd = u'''UPDATE authors
  SET (firstnameEng = "{2}", lastnameEng = "{3}")
- WHERE firstnameAra = "{0}" AND lastnameAra = "{1}";'
+ WHERE firstnameAra = "{0}" AND lastnameAra = "{1}";'''
             upd = upd.format(at[0:3])
             cur.execute(upd)
 
