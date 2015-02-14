@@ -29,12 +29,9 @@ chrono INTEGER);
 
 CREATE TABLE booktoauthors(
 	kit REFERENCES kitabs(k_uid),
-	aut REFERENCES names(id),
-	aut_index INTEGER,
-	edi REFERENCES names(id),
-	edi_index INTEGER,
-	tra REFERENCES names(id),
-	tra_index INTEGER);
+	name REFERENCES names(id),
+	position INTEGER,
+	p_index INTEGER);
 
 CREATE TABLE chapters(
 	id INTEGER PRIMARY KEY,
