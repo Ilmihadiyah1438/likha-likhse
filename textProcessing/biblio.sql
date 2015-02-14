@@ -24,12 +24,22 @@ lastnameAra TEXT,
 firstnameEng TEXT,
 lastnameEng TEXT,
 position INTEGER,
-fatemi INTEGER,
+chrono INTEGER
+);
+
+CREATE TABLE names_fatemi(
+id INTEGER PRIMARY KEY,
+firstnameAra TEXT,
+lastnameAra TEXT,
+firstnameEng TEXT,
+lastnameEng TEXT,
+position INTEGER,
 chrono INTEGER);
 
 CREATE TABLE booktoauthors(
-	kit REFERENCES kitabs(k_uid),
-	name REFERENCES names(id),
+	kit TEXT,
+	name INTEGER,
+	name_fatemi INTEGER,
 	position INTEGER,
 	p_index INTEGER);
 
