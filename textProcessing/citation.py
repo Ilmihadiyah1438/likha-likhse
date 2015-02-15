@@ -153,63 +153,33 @@ WHERE position = 4 OR 5 OR 6 OR 7;''')
         (u'volumes',c.volumes),(u'pages',c.pages),(u'notesAra',c.notesAra),
         (u'notesEng',c.notesEng),(u'partOf',c.partOf)]
         e = cur.execute(u'''SELECT * FROM kitabs WHERE uid = "?"''', c.uid)
-        for at in c.authors:
-            if at in new_authors:
-                cur.execute(u'''INSERT INTO names 
+        def sort_names(t_name,list1,list2,list3,posits):
+            for ite in list1:
+                if ite in list2:
+                    cur.execute(u'''INSERT INTO ? 
 (firstnameAra, lastnameAra, firstnameEng, lastnameEng) 
-VALUES (?,?,?,?);''',at[0:3])
-            if at in update_authors[0]:
-                upd = u'''UPDATE names
+VALUES (?,?,?,?);''',([t_name]+at[0:3]))
+                if ite in list3[0]:
+                    upd = u'''UPDATE ?
  SET (firstnameAra = "{0}", lastnameAra = "{1}")
  WHERE firstnameEng = "{2}" AND lastnameEng = "{3}";'''
-            elif at in update_authors[1]:
-                upd = u'''UPDATE names
+                elif ite in list3[1]:
+                    upd = u'''UPDATE ?
  SET (firstnameEng = "{2}", lastnameEng = "{3}")
  WHERE firstnameAra = "{0}" AND lastnameAra = "{1}";'''
-            upd = upd.format(at[0:3])
-            cur.execute(upd)
-            cur.execute('''UPDATE names SET position = (position +1)
+                upd = upd.format(([t_name]+at[0:3]))
+                cur.execute(upd)
+                cur.execute('''UPDATE ? SET position = (position +1)
 WHERE (firstnameAra = ? AND lastnameAra = ? AND firstnameEng = ? AND lastnameEng = ?)
- AND (position != 1 OR position != 3 OR position != 5 OR position != 7);''', at[0:3])
-                        
-        for at in c.editors:
-            if at in new_editors:
-                cur.execute(u'''INSERT INTO names 
-(firstnameAra, lastnameAra, firstnameEng, lastnameEng) 
-VALUES (?,?,?,?);''',at[0:3])
-            if at in update_editors[0]:
-                upd = u'''UPDATE names
- SET (firstnameAra = "{0}", lastnameAra = "{1}")
- WHERE firstnameEng = "{2}" AND lastnameEng = "{3}";'''
-            elif at in update_editors[1]:
-                upd = u'''UPDATE names
- SET (firstnameEng = "{2}", lastnameEng = "{3}")
- WHERE firstnameAra = "{0}" AND lastnameAra = "{1}";'''
-            upd = upd.format(at[0:3])
-            cur.execute(upd)
-            cur.execute('''UPDATE names SET position = (position +1)
-WHERE (firstnameAra = ? AND lastnameAra = ? AND firstnameEng = ? AND lastnameEng = ?)
- AND (position != 2 OR position != 3 OR position !=6 OR position != 7);''', at[0:3])
-
-        for at in c.translators:
-            if at in new_translators:
-                cur.execute(u'''INSERT INTO names 
-(firstnameAra, lastnameAra, firstnameEng, lastnameEng) 
-VALUES (?,?,?,?);''',at[0:3])
-            if at in update_translators[0]:
-                upd = u'''UPDATE names
- SET (firstnameAra = "{0}", lastnameAra = "{1}")
- WHERE firstnameEng = "{2}" AND lastnameEng = "{3}";'''
-            elif at in update_translators[1]:
-                upd = u'''UPDATE names
- SET (firstnameEng = "{2}", lastnameEng = "{3}")
- WHERE firstnameAra = "{0}" AND lastnameAra = "{1}";'''
-            upd = upd.format(at[0:3])
-            cur.execute(upd)
-            cur.execute('''UPDATE names SET position = (position +1)
-WHERE (firstnameAra = ? AND lastnameAra = ? AND firstnameEng = ? AND lastnameEng = ?)
- AND (position != 4 OR position != 5 OR position !=6 OR position != 7);''', at[0:3])
-
+ AND (position != ? OR position != ? OR position != ? OR position !=?);''', (ite[0:3]+list(posits)))
+        sort_name('names_fatemi',c.authors,exist_authors,new_authors,
+                    update_authors,(1,3,5,7))
+        sort_name('names',c.authors,exist_authors,new_authors,
+                    update_authors,(1,3,5,7))
+        sort_name('names',c.editors,exist_editors,prog_editors,
+                    update_editors,(2,5,6,7))
+        sort_name('names',c.translators,exist_translators,new_translators,
+                    update_authors,(4,5,6,7))
         if e.fetchall():
             for i in k[1:]:               
                 kit = u'UPDATE kitabs SET {0} WHERE uid = "{1}";'
@@ -230,71 +200,40 @@ WHERE (firstnameAra = ? AND lastnameAra = ? AND firstnameEng = ? AND lastnameEng
             if entry0[-1] == u',': entry0 = entry0[:-1]
             if entry1[-1] == u',': entry1 = entry1[:-1]
             kit = kit.format(entry0,entry1)
-            cur.execute(kit)
-    ###cont.from here    
-        def indices(person,abbv):
+            cur.execute(kit)    
+        def names(n_type,person):
             au_index = 1
             index = cur.execute(u"""
-SELECT p_index from booktoauthors where""", (abbv,c.uid,abbv))
+SELECT ? from booktoauthors WHERE kit = ? AND position = ?
+ORDER BY p_index;""", (n_type,c.uid,person))
             index = index.fetchall()
-            ind_list = []
+            name_list = []
             for i in index:
-                names = cur.execute(
-u'''SELECT nameAra, nameEng FROM ? WHERE id = ?;''',
-(person, i))
-                names = names.fetchall()
-                ind_list.append(names)
-            return ind_list
-        
-        a = indices(u'authors',u'aut')
-        e = indices(u'editors', u'edi')
-        t = indices(u'translators', u'tra')                
-                
-        if a == c.authors: pass
-        else:
+                name = cur.execute(
+u'''SELECT firstnameAra, lastnameAra, firstnameEng, lastnameEng
+ FROM names WHERE id = ?;''', i)
+                names = name.fetchone()
+                name_list.append([name,i])
+            return name_list
+        a_f = names('name_fatemi',1)
+        a = names('name',1)
+        e = names('name',2)
+        t = names('name',4)                
+        def add_names(list1, list2, t_name, posit, inst):
             ind = 0
-            for auth in c.authors:
-                if auth == a[ind]:
+            for ite in list1:
+                if ite[0] == list2[ind][0]:
                     ind += 1
                 else: 
-                    a[ind] = auth
-                    a_ind = cur.execute(u"""
-SELECT id FROM authors where nameEng = '?';""",
-auth[1]).fetchone()
-                    cur.execute(u"""
-INSERT INTO booktoauthors (kit,aut,aut_index)
-VALUES (?,?,?);""",(c.uid,a_ind[0],ind+1))
+                    list2[ind][0] = auth[0]
+                    cur.execute('''INSERT INTO booktoauthors
+ (kit,?,position,p_index) VALUES (?,?,?,?);''',
+ (t_name, inst.uid, list2[ind][1],posit,ind))
                     ind += 1
-        if e == c.editors: pass
-        else:
-            ind = 0
-            for edi in c.editors:
-                if edi == e[ind]:
-                    ind += 1
-                else: 
-                    e[ind] = edi
-                    e_ind = cur.execute(u"""
-SELECT id FROM editors where nameEng = '?';""",
-edi[1]).fetchone()
-                    cur.execute(u"""
-INSERT INTO booktoauthors (kit,edi,edi_index)
-VALUES (?,?,?);""",(c.uid,e_ind[0],ind))
-                    ind += 1
-        if t is c.translators: pass
-        else:
-            ind = 0
-            for tra in c.translators:
-                if tra == t[ind]:
-                    ind += 1
-                else: 
-                    t[ind] = tra
-                    t_ind = cur.execute(u"""
-SELECT id FROM translators where nameEng = '?';""",
-auth[1]).fetchone()
-                    cur.execute(u"""
-INSERT INTO booktoauthors (kit,tra,tra_index)
-VALUES (?,?,?);""",(c.uid,t_ind[0],ind))
-                    ind += 1
+        add_names(c.saheb,a_f,'name_fatemi',1,c)
+        add_names(c.authors,a,'name',1,c)
+        add_names(c.editors,e,'name',2,c)
+        add_names(c.translators,t,'name',4,c)
     cur.commit()
         
 def basic_query(typ = u'author', multi = u'y', what = u'name', form = u''):
