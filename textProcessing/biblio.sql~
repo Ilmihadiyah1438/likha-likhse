@@ -15,7 +15,7 @@ CREATE TABLE kitabs(
 	pages TEXT,
 	notesAra TEXT,
 	notesEng TEXT,
-	partOf TEXT);
+	partOf TEXT REFERENCES kitabs (k_uid));
 
 CREATE TABLE names(
 id INTEGER AUTOINCREMENT PRIMARY KEY,
