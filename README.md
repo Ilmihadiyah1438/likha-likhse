@@ -29,25 +29,25 @@ We will try to implement Aljameatus Saifiyah's Transliteration and Referencing g
 #لكھا-لكھسے
  ‏لكها لكهسے (انشاء الله تعالى) ايك word processor رهسے٬ جہ نا سي لسان الدعوة انے بيسري زبانو ما لكهوا ما مدد تھاسے. اٰ برنامج هميں سنة ١٤٣٨ ھ ما حضرة امامية ما٬ الدرجة الحادية عشرة عرض كروا واسطے تيار كري رهيا چھے٬ لذلك اهنو focus زياده الجامعة السيفية نا برامج اوپر هسے.
 
-‏حسب الذيل features نے حسب الامكان شامل كرواني انے develop كرواني كوشش كريسوں:
-‏- ايك word processor
-‏- اهما استعمال كروا واسطے مصلح الاملاء/dictionary
-‏- مراجع انے مصادر ما خوبي انے سهلائي تهائي٬ اهنا واسطے ايك manager
+* حسب الذيل features نے حسب الامكان شامل كرواني انے develop كرواني كوشش كريسوں:
+ - ايك word processor
+ - اهما استعمال كروا واسطے مصلح الاملاء/dictionary
+ - مراجع انے مصادر ما خوبي انے سهلائي تهائي٬ اهنا واسطے ايك manager
 
-‏##۔Word Processor
+## Word Processor
 
-‏لكهان نا واسطے unicode استعمال كرسے٬ تا كہ cross-platform support برابر رهي سكے
+* لكهان نا واسطے unicode استعمال كرسے٬ تا كہ cross-platform support برابر رهي سكے
 
-‏ـinputنا واسطے في الحال جتنا methods چھے٬ اهنے support كرسے (مثلا : 'سس' > 'ے')
+* ـinputنا واسطے في الحال جتنا methods چھے٬ اهنے support كرسے (مثلا : 'سس' > 'ے')
 مع ذلكك، live transliteration بهي support كرسے (مثلا كوئي kem cho نے type كرے، تو automatically 'كيم چھو' بتاوے)
 
-‏##مصلح الاملاء(spellcheck)
+##مصلح الاملاء(spellcheck)
 اصلاح الاملاء واسطے ايك الفاظو نو list تيار كروو انے يہ list نے annotate كروو ضروري چھے٬ تا كہ يہ [هنسپيل](http://hunspell.sourceforge.org) ساتھے استعمال تھئي سكے.
 
-‏##مراجع مصادر
+##مراجع مصادر
 مراجع مصادر نے الجامعة السيفية نا Transliteration and Referencing Guidelines مطابق پيش كروا ما سهولية تهائي، اهنا واسطے ايك manager نے تيار كرسوں (جہ مثل Word ما چھے)....
 
-‏**انشاء الله تعالى**
+**انشاء الله تعالى**
 </html>
 
 
